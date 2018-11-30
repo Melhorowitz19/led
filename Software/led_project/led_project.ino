@@ -1,6 +1,6 @@
 #define LED 9
 #define FLASH_RATE 2
-#define BUTTON_PIN 3
+#define BUTTON_PIN 2
 #define PWM_MAX 255
 
 //mode: 0-off, 1-bright, 2-mid, 3- dim, 4-flashing
@@ -8,11 +8,12 @@ int mode = 0;
 int BUTTON_PUSHED = 0;
 int PWM_OUT = 0;
 int freq_delay = 0;
+ static int last_interrupt_time = 0;
 
 void setup() {
   Serial.begin(9600);
 	pinMode(LED, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN,INPUT);
 	attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), button_pushed, FALLING);
 	freq_delay = 1000/FLASH_RATE;
 }
@@ -32,7 +33,12 @@ void shine_LED(int pwm){
 }
 
 void button_pushed(){
-  BUTTON_PUSHED = 1;
+  int interrupt_time = millis();
+ if (interrupt_time - last_interrupt_time > 200)
+ {
+     BUTTON_PUSHED = 1;
+ }
+ last_interrupt_time = interrupt_time;
 }
 
 void flash_LED(int freq){
